@@ -1,7 +1,27 @@
 const express = require("express");
 const {MessageSchema} = require('../models/MessageModel')
+const jwt = require('jsonwebtoken');
+const {UserSchema} = require('../models/UserModel');
+
 const router = express.Router();
 
+
+router.post('/login', async (req, res) => {
+  const { UserName, Password } = req.body;
+
+  try {
+      const user = await UserSchema.findOne({ UserName });
+      if (!user) {
+          return res.status(401).json({ message: 'שם משתמש או סיסמה שגויים' });
+      }
+
+      const token = jwt.sign({ userId: user._id }, 'your_secret_key', { expiresIn: '1h' });
+      res.json({ token });
+  } catch (error) {
+      console.error(error); 
+      res.status(500).json({ message: 'שגיאה בשרת' });
+  }
+});
 
 router.get('/get-message', async (req, res) => {
   try {
