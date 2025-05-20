@@ -1,7 +1,7 @@
+const {sendAppointmentEmail} = require('../services/Mail');
 const express = require("express");
 const { ScheduleSchema } = require("../models/ScheduleModel");
 const router = express.Router();
-
 
 // ------------קבלת כל התורים------------
 router.get("/all", async (req, res) => {
@@ -104,6 +104,13 @@ router.put("/update-user", async (req, res) => {
       Date: { $ne: Date }, // תור אחר (לא אותו תאריך)
       Hour: { $ne: Hour }, // תור אחר (לא אותה שעה)
     });
+
+    await sendAppointmentEmail({
+  fullName: req.body.FullName,
+  tel: req.body.Tel,
+  date: req.body.Date,
+  hour: req.body.Hour
+});
 
     if (existingUserAppointment) {
       return res.status(409).json({
